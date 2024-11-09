@@ -1,5 +1,7 @@
 package com.demoemployeebusiness.controller;
 
+import com.demoemployeebusiness.model.EmployeeInfoDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +15,8 @@ import java.net.URI;
 @RestController
 public class WebController {
     private final RestTemplate restTemplate=new RestTemplate();
-    Logger logger= LoggerFactory.getLogger(WebController.class);
+    final Logger logger= LoggerFactory.getLogger(WebController.class);
+    private final  ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${other.api.base-url}")
     private String baseUrl;
@@ -24,7 +27,7 @@ public class WebController {
         final URI uri;
         try{
              uri= URI.create(baseUrl+"/getEmployeeDetailsByEmpId/"+empId);
-            return(restTemplate.getForEntity(uri, String.class));
+           return (restTemplate.getForEntity(uri, String.class));
         }catch (Exception e){
             logger.error("Exception: "+e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Exception: "+e.getMessage());
@@ -41,5 +44,23 @@ public class WebController {
            logger.error("Exception: "+e.getMessage());
            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Exception: "+e.getMessage());
        }
+    }
+    @GetMapping("/getNoOfSkillsForEmployeeById/{empId}")
+    public ResponseEntity<?> getSkillsByEmployeeById(@PathVariable String empId){
+        logger.info("Begin getEmployeeById  EmpId  {}", empId);
+        final URI uri;
+        try{
+            uri= URI.create(baseUrl+"/getEmployeeDetailsByEmpId/"+empId);
+            String result = String.valueOf(restTemplate.getForEntity(uri, String.class));
+            //objectMapper.writeValue(result);
+            EmployeeInfoDTO  employeeInfoDTO= objectMapper.readValue(result, EmployeeInfoDTO.class);
+            logger.info("response "+employeeInfoDTO);
+            int size = employeeInfoDTO.getSkillSet().size();
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(result+"No.of skills for employee "+empId +"is "+size);
+        }catch (Exception e){
+            logger.error("Exception: "+e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Exception: "+e.getMessage());
+        }
     }
 }
