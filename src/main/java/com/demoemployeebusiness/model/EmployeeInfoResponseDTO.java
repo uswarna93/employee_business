@@ -11,11 +11,7 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @Data
-public class EmployeeDTO {
-
-    private String empId;
-    private String firstName;
-    private  String lastName;
-    private  String department;
-
+public class EmployeeInfoResponseDTO {
+    private EmployeeResponseDTO empDetails;
+    private List<EmployeeSkillDTO> skillSet;
 }
